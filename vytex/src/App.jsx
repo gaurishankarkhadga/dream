@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useParams } from "rea
 import "./App.css";
 import "./Base.css";
 import { useAuth } from "./contexts/AuthContext";
-
+//just do loagout
 // Auth Components
 import Login from "./auth/Login";
 import Register from "./auth/Register";
