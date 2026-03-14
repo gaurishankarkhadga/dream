@@ -47,4 +47,4 @@ service-account.json
 
 # Database files
 *.sqlite
-*.db
+*.dbpublic/uploads/
