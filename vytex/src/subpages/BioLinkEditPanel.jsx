@@ -4,7 +4,7 @@ import { debounce } from 'lodash';
 import { 
   Plus, Eye, Share2, User, FileText, Link, MousePointer, 
   GripHorizontal, X, Palette, Upload, Camera, Video, Minus,
-  Smartphone, ChevronLeft
+  Smartphone, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import BioLinkElement from './BioLinkElement';
 import './BioLinkEditPanel.css';
@@ -14,9 +14,14 @@ import './BioLinkEditPanel.css';
 
 
 const BioLinkEditPanel = ({ user: userProp = null, biolink: biolinkProp = null, onUpdate }) => {
-  const [activeSection, setActiveSection] = useState('profile');
+  const [currentStep, setCurrentStep] = useState(0);
   const [previewActiveView, setPreviewActiveView] = useState('links');
   const [showPreview, setShowPreview] = useState(false);
+  const stepIds = ['profile', 'links', 'shop', 'themes', 'others'];
+  const activeSection = stepIds[currentStep] || 'profile';
+
+  const goNext = () => setCurrentStep(prev => Math.min(prev + 1, stepIds.length - 1));
+  const goBack = () => setCurrentStep(prev => Math.max(prev - 1, 0));
   
 
 
@@ -69,8 +74,10 @@ const BioLinkEditPanel = ({ user: userProp = null, biolink: biolinkProp = null, 
 
   const sections = [
     { id: 'profile', label: 'Profile', icon: <User size={20} />, color: 'var(--primary-color)' },
-    { id: 'content', label: 'Content', icon: <Link size={20} />, color: 'var(--accent-color)' },
-    { id: 'design', label: 'Design', icon: <Palette size={20} />, color: 'var(--secondary-color)' }
+    { id: 'links', label: 'Links', icon: <Link size={20} />, color: 'var(--accent-color)' },
+    { id: 'shop', label: 'Shop', icon: <MousePointer size={20} />, color: 'var(--success-color)' },
+    { id: 'themes', label: 'Theme', icon: <Palette size={20} />, color: 'var(--secondary-color)' },
+    { id: 'others', label: 'Others', icon: <FileText size={20} />, color: 'var(--info-color)' }
   ];
 
   const themes = [
@@ -985,11 +992,26 @@ const BioLinkEditPanel = ({ user: userProp = null, biolink: biolinkProp = null, 
   const renderSectionContent = () => {
     switch (activeSection) {
       case 'profile': return renderProfileSection();
-      case 'content': return renderContentSection();
-      case 'design': return renderDesignSection();
+      case 'links': return renderLinksSection();
+      case 'shop': return renderShopSection();
+      case 'themes': return renderThemesSection();
+      case 'others': return renderOthersSection();
       default: return renderProfileSection();
     }
   };
+
+  // Others step: Media + Content Elements
+  const renderOthersSection = () => (
+    <div className="section-content">
+      <div className="content-subsection">
+        {renderMediaSection()}
+      </div>
+      <div className="content-divider"></div>
+      <div className="content-subsection">
+        {renderContentElementsSection()}
+      </div>
+    </div>
+  );
 
   // Merged Content tab: Links + Shop + Content Elements
   const renderContentSection = () => (
@@ -1940,15 +1962,19 @@ const BioLinkEditPanel = ({ user: userProp = null, biolink: biolinkProp = null, 
 
   return (
     <div className="biolink-edit-panel mobile-first">
-      {/* Top bar - minimal, just status + actions */}
+      {/* Top bar - step indicator + save/publish */}
       <div className="edit-toolbar-mobile">
-        <div className="auto-save-status">
-          <div className={`status-dot ${autoSaveStatus}`}></div>
-          {autoSaveStatus === 'saving' && 'Saving...'}
-          {autoSaveStatus === 'saved' && 'Saved ✓'}
-          {autoSaveStatus === 'error' && 'Error'}
+        <div className="step-indicator">
+          {sections.map((s, i) => (
+            <div key={s.id} className={`step-dot ${i === currentStep ? 'active' : i < currentStep ? 'done' : ''}`}>
+              <span className="step-num">{i + 1}</span>
+            </div>
+          ))}
         </div>
         <div className="toolbar-actions">
+          <div className="auto-save-status">
+            <div className={`status-dot ${autoSaveStatus}`}></div>
+          </div>
           <button className="toolbar-btn-mobile" onClick={async () => { setAutoSaveStatus('saving'); await autoSave(); alert('Saved'); }}>
             Save
           </button>
@@ -1956,6 +1982,12 @@ const BioLinkEditPanel = ({ user: userProp = null, biolink: biolinkProp = null, 
             Publish
           </button>
         </div>
+      </div>
+
+      {/* Step title */}
+      <div className="step-title-bar">
+        <h2 className="step-title">{sections[currentStep]?.icon} {sections[currentStep]?.label}</h2>
+        <span className="step-count">Step {currentStep + 1} of {sections.length}</span>
       </div>
 
       {/* Main scrollable content area */}
@@ -1974,18 +2006,27 @@ const BioLinkEditPanel = ({ user: userProp = null, biolink: biolinkProp = null, 
         <Smartphone size={22} />
       </button>
 
-      {/* Bottom pill tab bar */}
-      <div className="bottom-tab-bar">
-        {sections.map((section) => (
-          <button
-            key={section.id}
-            className={`tab-btn ${activeSection === section.id ? 'active' : ''}`}
-            onClick={() => setActiveSection(section.id)}
-          >
-            {section.icon}
-            <span>{section.label}</span>
+      {/* Bottom step navigation */}
+      <div className="bottom-step-nav">
+        <button 
+          className="step-nav-btn back" 
+          onClick={goBack}
+          disabled={currentStep === 0}
+        >
+          <ChevronLeft size={18} />
+          Back
+        </button>
+        
+        {currentStep < sections.length - 1 ? (
+          <button className="step-nav-btn next" onClick={goNext}>
+            Next
+            <ChevronRight size={18} />
           </button>
-        ))}
+        ) : (
+          <button className="step-nav-btn finish" onClick={publishBiolink}>
+            Publish 🚀
+          </button>
+        )}
       </div>
 
       {/* Full-screen preview overlay */}
