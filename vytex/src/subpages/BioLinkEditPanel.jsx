@@ -63,6 +63,7 @@ const BioLinkEditPanel = ({ user: userProp = null, biolink: biolinkProp = null, 
   const appliedTemplateRef = useRef(false);
   const location = useLocation();
   const editIdRef = useRef(null);
+  const savingRef = useRef(false);
 
   const sections = [
     { id: 'profile', label: 'Profile', icon: <User size={20} />, color: 'var(--primary-color)' },
@@ -701,6 +702,12 @@ const BioLinkEditPanel = ({ user: userProp = null, biolink: biolinkProp = null, 
   };
 
   const autoSave = async () => {
+    // Prevent concurrent saves which create duplicate biolinks
+    if (savingRef.current) {
+      console.log('Save already in progress, skipping');
+      return;
+    }
+    savingRef.current = true;
     try {
       const token = localStorage.getItem('token');
       if (!token) {
@@ -709,13 +716,16 @@ const BioLinkEditPanel = ({ user: userProp = null, biolink: biolinkProp = null, 
       }
 
       const backendUrl = import.meta.env.VITE_BACKEND_URL;
+      // Use editIdRef as the source of truth for _id (it updates synchronously)
+      const currentId = biolinkData._id || editIdRef.current;
       const payload = { 
         ...biolinkData,
-        _new: isNew && !biolinkData._id ? true : undefined,
+        _id: currentId || undefined,
+        _new: isNew && !currentId ? true : undefined,
         username: biolinkData.username || undefined
       };
       
-      console.log('Auto-saving with payload:', payload);
+      console.log('Auto-saving with payload:', { _id: currentId, isNew });
       
       const response = await fetch(`${backendUrl}/api/biolinks/save`, {
         method: 'POST',
@@ -723,17 +733,19 @@ const BioLinkEditPanel = ({ user: userProp = null, biolink: biolinkProp = null, 
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ ...payload, _id: biolinkData._id || editIdRef.current || payload._id })
+        body: JSON.stringify(payload)
       });
 
       if (response.ok) {
         const data = await response.json();
         if (data?.biolink?._id) {
+          // Store _id in ref immediately (synchronous) so next save uses it
+          editIdRef.current = data.biolink._id;
           setBiolinkData(prev => ({ ...prev, _id: data.biolink._id }));
           setIsNew(false);
         }
         setAutoSaveStatus('saved');
-        console.log('Auto-save successful');
+        console.log('Auto-save successful, _id:', data?.biolink?._id);
       } else {
         const errorText = await response.text();
         console.error('Auto-save failed:', response.status, errorText);
@@ -742,6 +754,8 @@ const BioLinkEditPanel = ({ user: userProp = null, biolink: biolinkProp = null, 
     } catch (error) {
       console.error('Error auto-saving:', error);
       setAutoSaveStatus('error');
+    } finally {
+      savingRef.current = false;
     }
   };
 
