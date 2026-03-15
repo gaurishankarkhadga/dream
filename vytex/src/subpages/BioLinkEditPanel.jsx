@@ -3,7 +3,8 @@ import { useLocation } from 'react-router-dom';
 import { debounce } from 'lodash';
 import { 
   Plus, Eye, Share2, User, FileText, Link, MousePointer, 
-  GripHorizontal, X, Palette, Upload, Camera, Video, Minus
+  GripHorizontal, X, Palette, Upload, Camera, Video, Minus,
+  Smartphone, ChevronLeft
 } from 'lucide-react';
 import BioLinkElement from './BioLinkElement';
 import './BioLinkEditPanel.css';
@@ -15,6 +16,7 @@ import './BioLinkEditPanel.css';
 const BioLinkEditPanel = ({ user: userProp = null, biolink: biolinkProp = null, onUpdate }) => {
   const [activeSection, setActiveSection] = useState('profile');
   const [previewActiveView, setPreviewActiveView] = useState('links');
+  const [showPreview, setShowPreview] = useState(false);
   
 
 
@@ -67,11 +69,8 @@ const BioLinkEditPanel = ({ user: userProp = null, biolink: biolinkProp = null, 
 
   const sections = [
     { id: 'profile', label: 'Profile', icon: <User size={20} />, color: 'var(--primary-color)' },
-    { id: 'links', label: 'Links', icon: <Link size={20} />, color: 'var(--accent-color)' },
-    { id: 'shop', label: 'Shop', icon: <MousePointer size={20} />, color: 'var(--success-color)' },
-    { id: 'themes', label: 'Themes', icon: <Palette size={20} />, color: 'var(--secondary-color)' },
-    { id: 'media', label: 'Media', icon: <Camera size={20} />, color: 'var(--accent-yellow)' },
-    { id: 'content-elements', label: 'Content Elements', icon: <FileText size={20} />, color: 'var(--info-color)' }
+    { id: 'content', label: 'Content', icon: <Link size={20} />, color: 'var(--accent-color)' },
+    { id: 'design', label: 'Design', icon: <Palette size={20} />, color: 'var(--secondary-color)' }
   ];
 
   const themes = [
@@ -986,14 +985,237 @@ const BioLinkEditPanel = ({ user: userProp = null, biolink: biolinkProp = null, 
   const renderSectionContent = () => {
     switch (activeSection) {
       case 'profile': return renderProfileSection();
-      case 'links': return renderLinksSection();
-      case 'shop': return renderShopSection();
-      case 'themes': return renderThemesSection();
-      case 'media': return renderMediaSection();
-      case 'content-elements': return renderContentElementsSection();
+      case 'content': return renderContentSection();
+      case 'design': return renderDesignSection();
       default: return renderProfileSection();
     }
   };
+
+  // Merged Content tab: Links + Shop + Content Elements
+  const renderContentSection = () => (
+    <div className="section-content">
+      {/* Links Sub-section */}
+      <div className="content-subsection">
+        <div className="section-header">
+          <h3>Social Links</h3>
+          <button className="add-btn" onClick={addLink}>
+            <Plus size={16} />
+            Add Link
+          </button>
+        </div>
+        {renderLinksSection.__links ? renderLinksSection.__links() : (
+          <div className="links-list">
+            {(biolinkData.links || []).map((link) => (
+              <div key={link.id} className="simple-link-row swipeable-row">
+                <div className="creative-platform-selector" ref={el => {
+                  if (el && !el.hasClickOutsideListener) {
+                    el.hasClickOutsideListener = true;
+                    const handleClickOutside = (event) => {
+                      if (!el.contains(event.target)) {
+                        const dropdown = el.querySelector('.creative-dropdown');
+                        if (dropdown) dropdown.classList.remove('show');
+                      }
+                    };
+                    document.addEventListener('click', handleClickOutside);
+                    el.cleanupClickOutside = () => document.removeEventListener('click', handleClickOutside);
+                  }
+                }}>
+                  <button 
+                    type="button"
+                    className="creative-platform-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const dropdown = document.getElementById(`dropdown-${link.id}`);
+                      dropdown.classList.toggle('show');
+                    }}
+                  >
+                    <div className="platform-display">
+                      <div className="platform-icon-circle">
+                        {link.platform ? (
+                          socialPlatforms.find(p => p.id === link.platform)?.icon
+                        ) : (
+                          <span className="default-icon">+</span>
+                        )}
+                      </div>
+                      <span className="platform-name">
+                        {link.platform ? 
+                          socialPlatforms.find(p => p.id === link.platform)?.name : 
+                          'Add Platform'
+                        }
+                      </span>
+                    </div>
+                    <div className="creative-arrow">
+                      <svg width="14" height="8" viewBox="0 0 14 8" fill="none">
+                        <path d="M1 1L7 7L13 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </div>
+                  </button>
+                  
+                  <div className="creative-dropdown" id={`dropdown-${link.id}`}>
+                    {socialPlatforms.map(platform => (
+                      <button
+                        key={platform.id}
+                        type="button"
+                        className="platform-option"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handlePlatformChange(link.id, platform.id);
+                          document.getElementById(`dropdown-${link.id}`).classList.remove('show');
+                        }}
+                      >
+                        <span className="option-icon">{platform.icon}</span>
+                        <span className="option-name">{platform.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                
+                <input
+                  type="text"
+                  value={link.title}
+                  onChange={(e) => updateLink(link.id, { title: e.target.value })}
+                  placeholder="Url Name"
+                  className="simple-input title-field"
+                />
+                
+                <input
+                  type="url"
+                  value={link.url}
+                  onChange={(e) => updateLink(link.id, { url: e.target.value })}
+                  placeholder="https://"
+                  className="simple-input url-field"
+                />
+                
+                <button 
+                  className="remove-btn-simple"
+                  onClick={() => removeLink(link.id)}
+                  title="Remove link"
+                >
+                  <X size={14} />
+                </button>
+              </div>
+            ))}
+            
+            {(biolinkData.links || []).length === 0 && (
+              <div className="empty-state">
+                <button className="first-link-btn" onClick={addLink}>
+                  <Plus size={20} />
+                  <span>Add Your First Link</span>
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Divider */}
+      <div className="content-divider"></div>
+
+      {/* Shop Sub-section */}
+      <div className="content-subsection">
+        <div className="section-header">
+          <h3>Shop Products</h3>
+          <button className="add-btn" onClick={addProduct}>
+            <Plus size={16} />
+            Add Product
+          </button>
+        </div>
+        <div className="links-container">
+          {(biolinkData.products || []).map((product, index) => (
+            <div key={product.id} className="simple-link-row">
+              <input
+                type="text"
+                value={product.name}
+                onChange={(e) => updateProduct(index, 'name', e.target.value)}
+                placeholder="Product Name"
+                className="simple-input title-field"
+              />
+              <input
+                type="text"
+                value={product.description}
+                onChange={(e) => updateProduct(index, 'description', e.target.value)}
+                placeholder="Description"
+                className="simple-input"
+              />
+              <input
+                type="text"
+                value={product.price}
+                onChange={(e) => updateProduct(index, 'price', e.target.value)}
+                placeholder="Price"
+                className="simple-input"
+              />
+              <div className="product-image-upload">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleProductImageUpload(index, e.target.files[0])}
+                  style={{ display: 'none' }}
+                  id={`product-image-${index}`}
+                />
+                <label htmlFor={`product-image-${index}`} className="upload-image-btn">
+                  <Camera size={16} />
+                  {product.image ? 'Change Image' : 'Upload Image'}
+                </label>
+                {product.image && (
+                  <div className="product-image-preview">
+                    <img src={product.image} alt="Product" />
+                  </div>
+                )}
+              </div>
+              <input
+                type="url"
+                value={product.url}
+                onChange={(e) => updateProduct(index, 'url', e.target.value)}
+                placeholder="Product URL"
+                className="simple-input url-field"
+              />
+              <button 
+                className="remove-btn-simple"
+                onClick={() => removeProduct(index)}
+                title="Remove product"
+              >
+                <X size={14} />
+              </button>
+            </div>
+          ))}
+          {(biolinkData.products || []).length === 0 && (
+            <div className="empty-state">
+              <button className="first-link-btn" onClick={addProduct}>
+                <Plus size={20} />
+                <span>Add Your First Product</span>
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Divider */}
+      <div className="content-divider"></div>
+
+      {/* Content Elements Sub-section */}
+      <div className="content-subsection">
+        {renderContentElementsSection()}
+      </div>
+    </div>
+  );
+
+  // Merged Design tab: Themes + Media
+  const renderDesignSection = () => (
+    <div className="section-content">
+      {/* Themes Sub-section */}
+      <div className="content-subsection">
+        {renderThemesSection()}
+      </div>
+
+      {/* Divider */}
+      <div className="content-divider"></div>
+
+      {/* Media Sub-section */}
+      <div className="content-subsection">
+        {renderMediaSection()}
+      </div>
+    </div>
+  );
 
   const renderProfileSection = () => (
     <div className="section-content">
@@ -1717,38 +1939,65 @@ const BioLinkEditPanel = ({ user: userProp = null, biolink: biolinkProp = null, 
   }
 
   return (
-    <div className="biolink-edit-panel">
-      <div className="edit-toolbar">
-        <div className="toolbar-left">
-          <div className="auto-save-status">
-            <div className={`status-dot ${autoSaveStatus}`}></div>
-            {autoSaveStatus === 'saving' && 'Saving...'}
-            {autoSaveStatus === 'saved' && 'All changes saved'}
-            {autoSaveStatus === 'error' && 'Save error'}
-          </div>
+    <div className="biolink-edit-panel mobile-first">
+      {/* Top bar - minimal, just status + actions */}
+      <div className="edit-toolbar-mobile">
+        <div className="auto-save-status">
+          <div className={`status-dot ${autoSaveStatus}`}></div>
+          {autoSaveStatus === 'saving' && 'Saving...'}
+          {autoSaveStatus === 'saved' && 'Saved ✓'}
+          {autoSaveStatus === 'error' && 'Error'}
         </div>
-        
-        <div className="toolbar-right">
-          <button className="toolbar-btn" onClick={() => window.open(`/p/${(biolinkData?.username || user?.username)}`, '_blank')}>
-            <Eye size={16} />
-            Preview
-          </button>
-          <button className="toolbar-btn publish-btn" onClick={async () => { setAutoSaveStatus('saving'); await autoSave(); alert('Saved'); }}>
+        <div className="toolbar-actions">
+          <button className="toolbar-btn-mobile" onClick={async () => { setAutoSaveStatus('saving'); await autoSave(); alert('Saved'); }}>
             Save
           </button>
-          <button className="toolbar-btn publish-btn" onClick={publishBiolink}>
+          <button className="toolbar-btn-mobile publish" onClick={publishBiolink}>
             Publish
           </button>
         </div>
       </div>
 
-      <div className="edit-main-content">
-        <div className="mobile-preview-side">
-          <div className="mobile-preview-container">
+      {/* Main scrollable content area */}
+      <div className="edit-content-mobile">
+        <div className="section-content-wrapper">
+          {renderSectionContent()}
+        </div>
+      </div>
+
+      {/* Floating preview button */}
+      <button 
+        className="preview-fab" 
+        onClick={() => setShowPreview(true)}
+        title="Preview"
+      >
+        <Smartphone size={22} />
+      </button>
+
+      {/* Bottom pill tab bar */}
+      <div className="bottom-tab-bar">
+        {sections.map((section) => (
+          <button
+            key={section.id}
+            className={`tab-btn ${activeSection === section.id ? 'active' : ''}`}
+            onClick={() => setActiveSection(section.id)}
+          >
+            {section.icon}
+            <span>{section.label}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* Full-screen preview overlay */}
+      {showPreview && (
+        <div className="preview-overlay" onClick={() => setShowPreview(false)}>
+          <div className="preview-overlay-content" onClick={(e) => e.stopPropagation()}>
+            <div className="preview-overlay-handle" onClick={() => setShowPreview(false)}>
+              <div className="handle-bar"></div>
+              <span>Pull down to close</span>
+            </div>
             <div className="mobile-preview" style={{ 
-              background: (biolinkData.settings.backgroundColor || '#000').includes('gradient')
-                ? biolinkData.settings.backgroundColor
-                : biolinkData.settings.backgroundColor,
+              background: biolinkData.settings.backgroundColor,
               color: biolinkData.settings.textColor
             }}>
               <div className="mobile-header">
@@ -1778,7 +2027,7 @@ const BioLinkEditPanel = ({ user: userProp = null, biolink: biolinkProp = null, 
                 </p>
               </div>
               
-              {biolinkData.products.length > 0 && (
+              {(biolinkData.products || []).length > 0 && (
                 <div style={{ 
                   display: 'flex', 
                   backgroundColor: biolinkData.settings.accentColor || '#8b5cf6', 
@@ -1792,37 +2041,21 @@ const BioLinkEditPanel = ({ user: userProp = null, biolink: biolinkProp = null, 
                   <button
                     onClick={() => setPreviewActiveView('links')}
                     style={{
-                      flex: 1,
-                      padding: '8px 12px',
-                      border: 'none',
-                      borderRadius: '20px',
-                      fontSize: '12px',
-                      fontWeight: '600',
-                      cursor: 'pointer',
-                      transition: 'all 0.3s ease',
+                      flex: 1, padding: '8px 12px', border: 'none', borderRadius: '20px',
+                      fontSize: '12px', fontWeight: '600', cursor: 'pointer', transition: 'all 0.3s ease',
                       backgroundColor: previewActiveView === 'links' ? '#ffffff' : 'transparent',
                       color: previewActiveView === 'links' ? (biolinkData.settings.accentColor || '#8b5cf6') : '#ffffff'
                     }}
-                  >
-                    LINK
-                  </button>
+                  >LINK</button>
                   <button
                     onClick={() => setPreviewActiveView('shop')}
                     style={{
-                      flex: 1,
-                      padding: '10px 12px',
-                      border: 'none',
-                      borderRadius: '20px',
-                      fontSize: '12px',
-                      fontWeight: '600',
-                      cursor: 'pointer',
-                      transition: 'all 0.3s ease',
+                      flex: 1, padding: '10px 12px', border: 'none', borderRadius: '20px',
+                      fontSize: '12px', fontWeight: '600', cursor: 'pointer', transition: 'all 0.3s ease',
                       backgroundColor: previewActiveView === 'shop' ? '#ffffff' : 'transparent',
                       color: previewActiveView === 'shop' ? (biolinkData.settings.accentColor || '#8b5cf6') : '#ffffff'
                     }}
-                  >
-                    SHOP
-                  </button>
+                  >SHOP</button>
                 </div>
               )}
               
@@ -1833,33 +2066,13 @@ const BioLinkEditPanel = ({ user: userProp = null, biolink: biolinkProp = null, 
                   const isTimeline = styleType === 'timeline';
                   const isPerspective = styleType === 'perspective';
                   const linkStyle = isGlass
-                    ? {
-                        background: 'rgba(51, 51, 51, 0.8)',
-                        border: '1px solid rgba(255, 255, 255, 0.1)',
-                        color: '#ffffff',
-                        boxShadow: '0 4px 15px rgba(0,0,0,0.3)',
-                        backdropFilter: 'blur(10px)'
-                      }
+                    ? { background: 'rgba(51, 51, 51, 0.8)', border: '1px solid rgba(255, 255, 255, 0.1)', color: '#ffffff', boxShadow: '0 4px 15px rgba(0,0,0,0.3)', backdropFilter: 'blur(10px)' }
                     : isTimeline
-                    ? {
-                        background: 'rgba(255, 255, 255, 0.1)',
-                        border: '1px solid rgba(255, 255, 255, 0.2)',
-                        color: '#ffffff',
-                        backdropFilter: 'blur(10px)'
-                      }
+                    ? { background: 'rgba(255, 255, 255, 0.1)', border: '1px solid rgba(255, 255, 255, 0.2)', color: '#ffffff', backdropFilter: 'blur(10px)' }
                     : isPerspective
-                    ? {
-                        background: '#ffffff',
-                        border: '1px solid rgba(255, 255, 255, 0.3)',
-                        color: '#000000',
-                        boxShadow: 'var(--shadow-md)'
-                      }
-                    : {
-                        background: biolinkData.settings.accentColor,
-                        color: biolinkData.settings.textColor
-                      };
+                    ? { background: '#ffffff', border: '1px solid rgba(255, 255, 255, 0.3)', color: '#000000', boxShadow: 'var(--shadow-md)' }
+                    : { background: biolinkData.settings.accentColor, color: biolinkData.settings.textColor };
                   
-                  // Get platform icon
                   const platform = socialPlatforms.find(p => p.id === link.platform);
                   const platformIcon = platform?.icon;
                   
@@ -1888,43 +2101,24 @@ const BioLinkEditPanel = ({ user: userProp = null, biolink: biolinkProp = null, 
 
                 {previewActiveView === 'shop' && (
                   <div className="preview-shop-rows">
-                    {Array.from({ length: Math.ceil(biolinkData.products.length / 2) }, (_, rowIndex) => (
+                    {Array.from({ length: Math.ceil((biolinkData.products || []).length / 2) }, (_, rowIndex) => (
                       <div key={rowIndex} className="preview-shop-row">
-                        {biolinkData.products.slice(rowIndex * 2, rowIndex * 2 + 2).map((product) => (
+                        {(biolinkData.products || []).slice(rowIndex * 2, rowIndex * 2 + 2).map((product) => (
                           <div key={product.id} className="preview-shop-item">
                             <div className="preview-shop-image">
                               {product.image ? (
                                 <img
                                   src={product.image.startsWith('http') ? product.image : `${import.meta.env.VITE_BACKEND_URL}${product.image}`}
                                   alt={product.name}
-                                  onError={(e) => {
-                                    e.target.style.display = 'none';
-                                    e.target.parentElement.innerHTML = `
-                                      <div class="preview-shop-placeholder">
-                                        📦
-                                      </div>
-                                    `;
-                                  }}
+                                  onError={(e) => { e.target.style.display = 'none'; }}
                                 />
                               ) : (
-                                <div className="preview-shop-placeholder">
-                                  📦
-                                </div>
+                                <div className="preview-shop-placeholder">📦</div>
                               )}
-                              <div className="preview-shop-heart">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="#ff4757" stroke="#ff4757" strokeWidth="2">
-                                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                                </svg>
-                              </div>
                             </div>
                             <div className="preview-shop-info">
                               <div className="preview-shop-name">{product.name}</div>
-                              {product.description && (
-                                <div className="preview-shop-desc">{product.description}</div>
-                              )}
-                              {product.price && (
-                                <div className="preview-shop-price">{product.price}</div>
-                              )}
+                              {product.price && <div className="preview-shop-price">{product.price}</div>}
                             </div>
                           </div>
                         ))}
@@ -1942,9 +2136,6 @@ const BioLinkEditPanel = ({ user: userProp = null, biolink: biolinkProp = null, 
                     onDragOver={handleDragOver}
                     onDrop={(e) => handleDrop(e, index)}
                   >
-                    <div className="drag-handle">
-                      <GripHorizontal size={16} />
-                    </div>
                     <BioLinkElement
                       element={element}
                       isPreview={true}
@@ -1953,31 +2144,19 @@ const BioLinkEditPanel = ({ user: userProp = null, biolink: biolinkProp = null, 
                   </div>
                 ))}
               </div>
-              
             </div>
+            
+            <button className="preview-close-btn" onClick={() => setShowPreview(false)}>
+              <X size={20} />
+              Close Preview
+            </button>
+            <button className="preview-open-external" onClick={() => window.open(`/p/${(biolinkData?.username || user?.username)}`, '_blank')}>
+              <Eye size={16} />
+              Open in New Tab
+            </button>
           </div>
         </div>
-
-        <div className="edit-panel-side"> 
-          <div className="section-nav"> 
-            {sections.map((section) => (
-              <button
-                key={section.id}
-                className={`section-nav-btn ${activeSection === section.id ? 'active' : ''}`}
-                onClick={() => setActiveSection(section.id)}
-                style={{ '--section-color': section.color }}
-              >
-                {section.icon}
-                <span>{section.label}</span>
-              </button>
-            ))}
-          </div>
-
-          <div className="section-content-wrapper">
-            {renderSectionContent()}
-          </div>
-        </div>
-      </div>
+      )}
 
       {showElementPopup && (
         <div className="element-popup-overlay" onClick={() => setShowElementPopup(false)}>
@@ -1989,16 +2168,20 @@ const BioLinkEditPanel = ({ user: userProp = null, biolink: biolinkProp = null, 
               </button>
             </div>
             <div className="element-grid">
-              {sections.slice(2).map((section) => (
+              {[
+                { id: 'separator', label: 'Separator', icon: <Minus size={20} />, color: 'var(--accent-cyan)' },
+                { id: 'text', label: 'Text Block', icon: <FileText size={20} />, color: 'var(--primary-color)' },
+                { id: 'cta', label: 'CTA Button', icon: <MousePointer size={20} />, color: 'var(--accent-blue)' }
+              ].map((el) => (
                 <button
-                  key={section.id}
+                  key={el.id}
                   className="element-type-btn"
-                  onClick={() => addElement(section.id)}
+                  onClick={() => addElement(el.id)}
                 >
-                  <div className="element-type-icon" style={{ color: section.color }}>
-                    {section.icon}
+                  <div className="element-type-icon" style={{ color: el.color }}>
+                    {el.icon}
                   </div>
-                  <span>{section.label}</span>
+                  <span>{el.label}</span>
                 </button>
               ))}
             </div>
