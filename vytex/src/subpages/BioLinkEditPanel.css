@@ -2904,78 +2904,27 @@
 }
 
 /* ============================================================
-   STEP WIZARD NAVIGATION (5 Steps)
+   STEP WIZARD - CLEAN (No Fixed Overlays)
    ============================================================ */
 
-/* Step indicator in toolbar */
-.step-indicator {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  position: relative;
-}
-
-/* Progress track behind dots */
-.step-indicator::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 12px;
-  right: 12px;
-  height: 2px;
-  background: var(--border-color);
-  transform: translateY(-50%);
-  z-index: 0;
-}
-
-.step-dot {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background: var(--card-bg);
-  border: 2px solid var(--border-color);
+/* Toolbar preview icon button */
+.toolbar-icon-btn {
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  z-index: 1;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  background: var(--card-bg);
+  color: var(--text-color);
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.step-dot .step-num {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--text-muted);
-  line-height: 1;
-}
-
-.step-dot.active {
-  background: var(--primary-color);
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.2);
-  transform: scale(1.2);
-}
-
-.step-dot.active .step-num {
-  color: white;
-}
-
-.step-dot.done {
-  background: var(--success-color);
-  border-color: var(--success-color);
-}
-
-.step-dot.done .step-num {
-  color: white;
-  font-size: 0;
-}
-
-/* Checkmark for done steps */
-.step-dot.done::before {
-  content: '✓';
-  font-size: 12px;
-  color: white;
-  font-weight: 700;
+.toolbar-icon-btn:active {
+  transform: scale(0.92);
+  background: var(--hover-bg);
 }
 
 /* Step title bar */
@@ -3010,40 +2959,32 @@
   background: var(--hover-bg);
   padding: 4px 10px;
   border-radius: 20px;
+  white-space: nowrap;
+}
+
+/* No extra bottom padding needed — nav is inline now */
+.edit-content-mobile {
+  padding-bottom: 0;
 }
 
 /* Section content slide animation */
 .edit-content-mobile .section-content-wrapper {
-  animation: stepSlideIn 0.3s ease;
+  animation: stepSlideIn 0.25s ease;
 }
 
 @keyframes stepSlideIn {
-  from {
-    opacity: 0;
-    transform: translateX(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+  from { opacity: 0; transform: translateX(16px); }
+  to { opacity: 1; transform: translateX(0); }
 }
 
-/* Bottom step navigation */
-.bottom-step-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
+/* Inline step navigation (inside scrollable content) */
+.inline-step-nav {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 16px;
-  padding-bottom: max(10px, env(safe-area-inset-bottom));
-  background: var(--topbar-bg);
+  padding: 24px 0 16px;
+  margin-top: 20px;
   border-top: 1px solid var(--border-color);
-  z-index: 30;
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
 }
 
 .step-nav-btn {
@@ -3052,12 +2993,12 @@
   gap: 6px;
   padding: 12px 24px;
   border: none;
-  border-radius: 14px;
+  border-radius: 12px;
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
-  min-height: 46px;
+  min-height: 44px;
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -3072,7 +3013,7 @@
 }
 
 .step-nav-btn.back:disabled {
-  opacity: 0.25;
+  opacity: 0.2;
   cursor: default;
 }
 
@@ -3083,44 +3024,18 @@
 .step-nav-btn.next {
   background: linear-gradient(135deg, var(--primary-color), var(--accent-blue));
   color: white;
-  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.3);
-}
-
-.step-nav-btn.next:hover {
-  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.45);
+  box-shadow: 0 4px 14px rgba(139, 92, 246, 0.3);
 }
 
 .step-nav-btn.finish {
   background: linear-gradient(135deg, var(--success-color), #10b981);
   color: white;
-  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
   font-size: 16px;
-}
-
-.step-nav-btn.finish:hover {
-  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45);
-}
-
-/* Adjust preview FAB above bottom nav */
-.preview-fab {
-  bottom: 78px;
 }
 
 /* Responsive */
 @media (min-width: 768px) {
-  .step-indicator {
-    gap: 6px;
-  }
-
-  .step-dot {
-    width: 28px;
-    height: 28px;
-  }
-
-  .step-dot .step-num {
-    font-size: 12px;
-  }
-
   .step-title-bar {
     padding: 16px 32px;
   }
@@ -3129,32 +3044,18 @@
     font-size: 20px;
   }
 
-  .bottom-step-nav {
-    justify-content: center;
-    gap: 16px;
-    padding: 14px 32px;
+  .inline-step-nav {
+    justify-content: flex-end;
+    gap: 12px;
   }
 
   .step-nav-btn {
-    padding: 14px 40px;
+    padding: 14px 36px;
   }
 }
 
 @media (min-width: 1024px) {
-  .step-dot {
-    width: 32px;
-    height: 32px;
-  }
-
-  .step-dot .step-num {
-    font-size: 13px;
-  }
-
   .step-title-bar {
-    padding: 16px 40px;
-  }
-
-  .bottom-step-nav {
     padding: 16px 40px;
   }
 }

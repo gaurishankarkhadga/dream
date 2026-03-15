@@ -1962,19 +1962,17 @@ const BioLinkEditPanel = ({ user: userProp = null, biolink: biolinkProp = null, 
 
   return (
     <div className="biolink-edit-panel mobile-first">
-      {/* Top bar - step indicator + save/publish */}
+      {/* Top bar - clean: save status + preview + save + publish */}
       <div className="edit-toolbar-mobile">
-        <div className="step-indicator">
-          {sections.map((s, i) => (
-            <div key={s.id} className={`step-dot ${i === currentStep ? 'active' : i < currentStep ? 'done' : ''}`}>
-              <span className="step-num">{i + 1}</span>
-            </div>
-          ))}
+        <div className="auto-save-status">
+          <div className={`status-dot ${autoSaveStatus}`}></div>
+          {autoSaveStatus === 'saving' && 'Saving...'}
+          {autoSaveStatus === 'saved' && '✓ Saved'}
         </div>
         <div className="toolbar-actions">
-          <div className="auto-save-status">
-            <div className={`status-dot ${autoSaveStatus}`}></div>
-          </div>
+          <button className="toolbar-icon-btn" onClick={() => setShowPreview(true)} title="Preview">
+            <Smartphone size={18} />
+          </button>
           <button className="toolbar-btn-mobile" onClick={async () => { setAutoSaveStatus('saving'); await autoSave(); alert('Saved'); }}>
             Save
           </button>
@@ -1994,39 +1992,30 @@ const BioLinkEditPanel = ({ user: userProp = null, biolink: biolinkProp = null, 
       <div className="edit-content-mobile">
         <div className="section-content-wrapper">
           {renderSectionContent()}
+
+          {/* Back / Next buttons inside content */}
+          <div className="inline-step-nav">
+            <button 
+              className="step-nav-btn back" 
+              onClick={goBack}
+              disabled={currentStep === 0}
+            >
+              <ChevronLeft size={18} />
+              Back
+            </button>
+            
+            {currentStep < sections.length - 1 ? (
+              <button className="step-nav-btn next" onClick={goNext}>
+                Next
+                <ChevronRight size={18} />
+              </button>
+            ) : (
+              <button className="step-nav-btn finish" onClick={publishBiolink}>
+                Publish 🚀
+              </button>
+            )}
+          </div>
         </div>
-      </div>
-
-      {/* Floating preview button */}
-      <button 
-        className="preview-fab" 
-        onClick={() => setShowPreview(true)}
-        title="Preview"
-      >
-        <Smartphone size={22} />
-      </button>
-
-      {/* Bottom step navigation */}
-      <div className="bottom-step-nav">
-        <button 
-          className="step-nav-btn back" 
-          onClick={goBack}
-          disabled={currentStep === 0}
-        >
-          <ChevronLeft size={18} />
-          Back
-        </button>
-        
-        {currentStep < sections.length - 1 ? (
-          <button className="step-nav-btn next" onClick={goNext}>
-            Next
-            <ChevronRight size={18} />
-          </button>
-        ) : (
-          <button className="step-nav-btn finish" onClick={publishBiolink}>
-            Publish 🚀
-          </button>
-        )}
       </div>
 
       {/* Full-screen preview overlay */}
