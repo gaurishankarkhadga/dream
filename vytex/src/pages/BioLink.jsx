@@ -10,6 +10,7 @@ const BioLink = () => {
   const location = useLocation();
   const [user, setUser] = useState(null);
   const [biolink, setBiolink] = useState(null);
+  const [biolinks, setBiolinks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -33,6 +34,7 @@ const BioLink = () => {
         const data = await response.json();
         setUser(data.user);
         setBiolink(data.biolink);
+        setBiolinks(data.biolinks || []);
       }
     } catch (error) {
       console.error('Error:', error);
@@ -43,6 +45,10 @@ const BioLink = () => {
 
   const handleCreateNew = () => {
     navigate('/biolink/editor', { state: { reset: true, new: true } });
+  };
+
+  const handleEditBiolink = (id) => {
+    navigate('/biolink/editor', { state: { id } });
   };
 
   const handleTemplateSelect = (templateId) => {
@@ -208,51 +214,53 @@ const BioLink = () => {
           </div>
         </div>
 
-        {/* Preview */}
-        <div className="mobile-preview-section">
-          <h3>Quick Preview</h3>
-          <div className="mobile-preview-container">
-            <div className="mobile-preview">
-              <div className="mobile-header">
-                <div className="mobile-avatar">
-                  {biolink?.profile?.avatar ? (
-                    <img 
-                      src={biolink.profile.avatar.startsWith('http') ? biolink.profile.avatar : `${import.meta.env.VITE_BACKEND_URL}${biolink.profile.avatar}`} 
-                      alt="Avatar"
-                      onError={(e) => {
-                        console.error('Avatar preview failed to load:', e.target.src);
-                        e.target.style.display = 'none';
-                      }}
-                    />
-                  ) : (
-                    <User size={24} />
-                  )}
-                </div>
-                <h4>{biolink?.profile?.displayName || user?.displayName || user?.username || 'Your Name'}</h4>
-                <p>{biolink?.profile?.tagline || 'Your tagline here'}</p>
-              </div>
-              <div className="mobile-links">
-                {biolink?.links?.slice(0, 3).map((link, index) => (
-                  <div key={index} className="mobile-link">
-                    <span>{link.title || link.platform}</span>
+        {/* Existing BioLinks */}
+        {biolinks && biolinks.length > 0 && (
+          <div className="existing-biolinks-section" style={{ marginTop: '2rem' }}>
+            <h3>Your BioLinks</h3>
+            <div className="existing-biolinks-grid" style={{ display: 'flex', gap: '16px', overflowX: 'auto', paddingBottom: '16px', marginTop: '1rem' }}>
+              {biolinks.map(bl => (
+                <div key={bl._id} className="biolink-card" style={{ background: '#111827', padding: '16px', borderRadius: '12px', minWidth: '280px', border: '1px solid #374151' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                    <div style={{ width: '48px', height: '48px', borderRadius: '50%', overflow: 'hidden', background: '#374151', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      {bl.profile?.avatar ? (
+                        <img 
+                          src={bl.profile.avatar.startsWith('http') ? bl.profile.avatar : `${import.meta.env.VITE_BACKEND_URL}${bl.profile.avatar}`} 
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                          onError={(e) => { e.target.style.display = 'none'; }}
+                        />
+                      ) : <User size={24} color="#9ca3af" />}
+                    </div>
+                    <div>
+                      <h4 style={{ margin: 0, color: '#f3f4f6', fontSize: '16px' }}>{bl.profile?.displayName || 'Unnamed BioLink'}</h4>
+                      <p style={{ margin: 0, fontSize: '13px', color: '#9ca3af', marginTop: '4px' }}>
+                        {bl.username ? `@${bl.username}` : 'Unpublished draft'}
+                      </p>
+                    </div>
                   </div>
-                )) || (
-                  <>
-                    <div className="mobile-link">
-                      <span>Instagram</span>
-                    </div>
-                    <div className="mobile-link">
-                      <span>YouTube</span>
-                    </div>
-                  </>
-                )}
-              </div>
-              <button className="quick-add-btn" onClick={handleCreateNew}>
-                <Plus size={20} />
-              </button>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button 
+                      onClick={() => handleEditBiolink(bl._id)}
+                      style={{ flex: 1, padding: '8px 12px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '500' }}
+                    >
+                      <Edit size={16} style={{ marginRight: '6px' }} /> Edit
+                    </button>
+                    {bl.isPublished && bl.username && (
+                      <a 
+                        href={`/p/${bl.username}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ padding: '8px 12px', background: '#374151', color: 'white', border: 'none', borderRadius: '6px', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                      >
+                        <Globe size={16} />
+                      </a>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
