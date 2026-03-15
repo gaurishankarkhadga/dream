@@ -127,21 +127,9 @@ try {
   console.error('❌ Error loading biolink router:', error.message);
 }
 
-try {
-  const automateRouter = require('./automate');
-  app.use('/api/automation', automateRouter);
-  console.log('✅ Automation router loaded');
-} catch (error) {
-  console.error('❌ Error loading automation router:', error.message);
-}
 
-try {
-  const instagramRouter = require('./routes/instagram');
-  app.use('/api/automation/instagram', instagramRouter);
-  console.log('✅ Instagram router loaded');
-} catch (error) {
-  console.error('❌ Error loading Instagram router:', error.message);
-}
+
+
 
 try {
   const affiliateRouter = require('./affiliate');

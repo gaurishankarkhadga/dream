@@ -3,8 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Home,
   Link2,
-  Users,
-  Zap
+  Users
 } from 'lucide-react';
 import './BottomBar.css';
 
@@ -60,7 +59,6 @@ const BottomBar = () => {
   // Aligned to existing routes
   const navItems = [
     { icon: Home, label: 'Home', path: '/' },
-    { icon: Zap, label: 'Automation', path: '/Automation' },
     { icon: Link2, label: 'BioLink', path: '/biolink' },
     { icon: Users, label: 'Collab', path: '/Collab' }
   ];

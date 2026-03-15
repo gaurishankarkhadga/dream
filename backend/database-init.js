@@ -11,8 +11,6 @@ async function initializeDatabase() {
     require('./models/AffiliateLink');
     require('./models/AffiliatePlatform');
     require('./models/AffiliateAnalytics');
-    require('./models/AutomationFlow');
-    require('./models/AutomationLog');
     require('./models/SocialConnection');
 
     // Create additional indexes for better performance
@@ -54,20 +52,6 @@ async function initializeDatabase() {
     await createIndexSafely(db.collection('affiliateanalytics'), { userId: 1, date: -1 });
     await createIndexSafely(db.collection('affiliateanalytics'), { platform: 1, date: -1 });
     await createIndexSafely(db.collection('affiliateanalytics'), { date: 1 });
-    
-
-    await createIndexSafely(db.collection('automationflows'), { userId: 1, createdAt: -1 });
-    await createIndexSafely(db.collection('automationflows'), { 'settings.isActive': 1 });
-    await createIndexSafely(db.collection('automationflows'), { category: 1 });
-    await createIndexSafely(db.collection('automationflows'), { tags: 1 });
-    await createIndexSafely(db.collection('automationflows'), { name: 'text', description: 'text' });
-    
-    // AutomationLog indexes
-    await createIndexSafely(db.collection('automationlogs'), { flowId: 1, createdAt: -1 });
-    await createIndexSafely(db.collection('automationlogs'), { userId: 1, createdAt: -1 });
-    await createIndexSafely(db.collection('automationlogs'), { status: 1 });
-    await createIndexSafely(db.collection('automationlogs'), { triggerType: 1 });
-    await createIndexSafely(db.collection('automationlogs'), { createdAt: -1 });
     
     // SocialConnection indexes
     await createIndexSafely(db.collection('socialconnections'), { userId: 1, platform: 1 }, { unique: true });

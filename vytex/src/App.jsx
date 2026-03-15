@@ -16,9 +16,7 @@ import BottomBar from "./components/BottomBar";
 
 // Import bottom bar pages
 import HomePage from './pages/HomePage';
-import Create from './pages/Create';
-import Automation from './pages/Automation';
-import FlowBuilder from './pages/FlowBuilder';
+
 import Collab from './pages/Collaboration';
 import WhoAreYou from './pages/WhoAreYou';
 import BioLink from './pages/BioLink';
@@ -37,10 +35,8 @@ import BrandInbox from './Brand/BrandInbox';
 import CreatorProfile from './Brand/CreatorProfile';
 
 // Brand Pages
-import Analytics from './pages/Analytics';
 import Collaborations from './pages/Collaborations';
-import Finance from './pages/Finance';
-import Growth from './pages/Growth';
+
 
 // Legal Documents
 import PrivacyPolicy from './pages/PrivacyPolicy';
@@ -110,44 +106,9 @@ function App() {
               }
             />
 
-            <Route
-              path="/Create"
-              element={
-                <PrivateRoute>
-                  <>
-                    <Layout onLogout={logout}>
-                      <Create />
-                    </Layout>
-                    <BottomBar />
-                  </>
-                </PrivateRoute>
-              }
-            />
+            
 
-            <Route
-              path="/Automation"
-              element={
-                <PrivateRoute>
-                  <>
-                    <Layout onLogout={logout}>
-                      <Automation />
-                    </Layout>
-                    <BottomBar />
-                  </>
-                </PrivateRoute>
-              }
-            />
 
-            <Route
-              path="/FlowBuilder"
-              element={
-                <PrivateRoute>
-                  <Layout onLogout={logout}>
-                    <FlowBuilder />
-                  </Layout>
-                </PrivateRoute>
-              }
-            />
 
             <Route
               path="/Collab"
@@ -265,11 +226,8 @@ function App() {
             >
               <Route index element={<BrandHome />} />
               <Route path="home" element={<BrandHome />} />
-              <Route path="analytics" element={<Analytics />} />
               <Route path="collaborations" element={<Collaborations />} />
-              <Route path="finance" element={<Finance />} />
               <Route path="inbox" element={<BrandInbox />} />
-              <Route path="growth" element={<Growth />} />
               <Route path="creator-profile" element={<CreatorProfile />} />
             </Route>
 
