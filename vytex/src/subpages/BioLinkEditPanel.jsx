@@ -538,45 +538,71 @@ const BioLinkEditPanel = ({ user: userProp = null, biolink: biolinkProp = null, 
         return;
       }
 
-      if (!biolinkData.username && !user?.username) {
-        alert('Please set a username before publishing');
-        return;
+      // Determine username: use biolink-specific username first, then fall back to user's default
+      let username = biolinkData.username || user?.username;
+
+      if (!username) {
+        username = prompt('Enter a unique username/slug for this BioLink (e.g., "myname" will create /p/myname):');
+        if (!username) return;
       }
 
       // Validate username format
-      const username = biolinkData.username || user?.username;
-      if (username && !/^[a-zA-Z0-9_-]+$/.test(username)) {
+      if (!/^[a-zA-Z0-9_-]+$/.test(username)) {
         alert('Username can only contain letters, numbers, underscores, and hyphens');
         return;
       }
 
       const backendUrl = import.meta.env.VITE_BACKEND_URL;
-      const publishData = { id: biolinkData._id, username: username };
-      console.log('Publishing with data:', publishData);
-      let response = await fetch(`${backendUrl}/api/biolinks/publish`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(publishData)
-      });
 
-      if (response.ok) {
-        const data = await response.json();
-        const publishedUsername = data?.biolink?.username || user?.username;
-        const publishedUrl = (data?.url || `${window.location.origin}/p/${publishedUsername}`);
-        alert(`BioLink published successfully! Your BioLink: ${publishedUrl}`);
-        window.open(publishedUrl, '_blank');
-      } else {
-        const errorText = await response.text();
-        console.error('Publish failed:', response.status, errorText);
-        let parsed;
-        try { parsed = JSON.parse(errorText); } catch {}
-        console.error('Publish error details:', parsed);
-        alert(`Failed to publish: ${parsed?.error || errorText || 'Unknown error'}`);
-        return;
+      // Attempt to publish - retry with a new username if taken
+      let attempts = 0;
+      while (attempts < 3) {
+        const publishData = { id: biolinkData._id, username: username };
+        console.log('Publishing with data:', publishData);
+        const response = await fetch(`${backendUrl}/api/biolinks/publish`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(publishData)
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const publishedUsername = data?.biolink?.username || username;
+          const publishedUrl = (data?.url || `${window.location.origin}/p/${publishedUsername}`);
+          // Update local state with the published username
+          setBiolinkData(prev => ({ ...prev, username: publishedUsername }));
+          alert(`BioLink published successfully! Your BioLink: ${publishedUrl}`);
+          window.open(publishedUrl, '_blank');
+          return;
+        } else {
+          const errorText = await response.text();
+          let parsed;
+          try { parsed = JSON.parse(errorText); } catch {}
+          
+          if (parsed?.error === 'Username already taken') {
+            // Prompt user for a different username
+            const newUsername = prompt(
+              `The username "${username}" is already taken by another BioLink.\n\nEnter a different unique username for this BioLink (e.g., "${username}-2" or "${username}-portfolio"):`
+            );
+            if (!newUsername) return; // User cancelled
+            if (!/^[a-zA-Z0-9_-]+$/.test(newUsername)) {
+              alert('Username can only contain letters, numbers, underscores, and hyphens');
+              return;
+            }
+            username = newUsername;
+            attempts++;
+          } else {
+            console.error('Publish failed:', response.status, errorText);
+            console.error('Publish error details:', parsed);
+            alert(`Failed to publish: ${parsed?.error || errorText || 'Unknown error'}`);
+            return;
+          }
+        }
       }
+      alert('Could not publish after multiple attempts. Please try a completely different username.');
     } catch (error) {
       console.error('Error publishing biolink:', error);
       alert('Error publishing BioLink. Please check your connection.');
