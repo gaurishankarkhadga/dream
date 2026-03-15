@@ -782,7 +782,7 @@ const BioLinkEditPanel = ({ user: userProp = null, biolink: biolinkProp = null, 
       setBiolinkData(prev => {
         const next = {
           ...prev,
-          links: prev.links.map(link => {
+          links: (prev.links || []).map(link => {
             if (link.id === linkId) {
               return { 
                 ...link, 
@@ -806,7 +806,7 @@ const BioLinkEditPanel = ({ user: userProp = null, biolink: biolinkProp = null, 
     setBiolinkData(prev => {
       const next = {
         ...prev,
-        links: prev.links.map(link => 
+        links: (prev.links || []).map(link => 
           link.id === linkId ? { ...link, ...updates } : link
         )
       };
@@ -1075,7 +1075,7 @@ const BioLinkEditPanel = ({ user: userProp = null, biolink: biolinkProp = null, 
       </div>
       
       <div className="links-list">
-        {biolinkData.links.map((link) => (
+        {(biolinkData.links || []).map((link) => (
           <div key={link.id} className="simple-link-row">
             <div className="creative-platform-selector" ref={el => {
               if (el && !el.hasClickOutsideListener) {
@@ -1195,7 +1195,7 @@ const BioLinkEditPanel = ({ user: userProp = null, biolink: biolinkProp = null, 
           </button>
         </div>
         
-        {biolinkData.products.map((product, index) => (
+        {(biolinkData.products || []).map((product, index) => (
           <div key={product.id} className="simple-link-row">
             <input
               type="text"
@@ -1827,7 +1827,7 @@ const BioLinkEditPanel = ({ user: userProp = null, biolink: biolinkProp = null, 
               )}
               
               <div className="mobile-links">
-                {previewActiveView === 'links' && biolinkData.links.map((link) => {
+                {previewActiveView === 'links' && (biolinkData.links || []).map((link) => {
                   const styleType = biolinkData.settings.styleType || (biolinkData.theme === 'glass' ? 'glass' : biolinkData.theme === 'modern' ? 'timeline' : biolinkData.theme === 'creative' ? 'perspective' : 'default');
                   const isGlass = styleType === 'glass';
                   const isTimeline = styleType === 'timeline';
@@ -1933,7 +1933,7 @@ const BioLinkEditPanel = ({ user: userProp = null, biolink: biolinkProp = null, 
                   </div>
                 )}
                 
-                {biolinkData.elements.map((element, index) => (
+                {(biolinkData.elements || []).map((element, index) => (
                   <div
                     key={element.id}
                     className="mobile-element"
