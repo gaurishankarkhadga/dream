@@ -1982,12 +1982,6 @@ const BioLinkEditPanel = ({ user: userProp = null, biolink: biolinkProp = null, 
         </div>
       </div>
 
-      {/* Step title */}
-      <div className="step-title-bar">
-        <h2 className="step-title">{sections[currentStep]?.icon} {sections[currentStep]?.label}</h2>
-        <span className="step-count">Step {currentStep + 1} of {sections.length}</span>
-      </div>
-
       {/* Main scrollable content area */}
       <div className="edit-content-mobile">
         <div className="section-content-wrapper">

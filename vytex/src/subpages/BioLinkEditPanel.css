@@ -373,18 +373,12 @@
   color: var(--section-color);
 }
 
-/* Section Content - NO scrollbar by default */
+/* Section Content - no scroll here, parent handles it */
 .section-content-wrapper {
   flex: 1;
   padding: 2rem;
-  overflow-y: auto;
-  max-height: calc(100vh - 200px);
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.section-content-wrapper::-webkit-scrollbar {
-  display: none;
+  overflow: visible;
+  max-height: none;
 }
 
 /* Custom Scrollbar ONLY for Edit Panel Tabs Content */
@@ -2628,18 +2622,18 @@
   opacity: 0.9;
 }
 
-/* Main scrollable content area */
+/* Main scrollable content area - SINGLE scroll container */
 .edit-content-mobile {
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  padding-bottom: 80px; /* Space for bottom tab bar */
   -webkit-overflow-scrolling: touch;
 }
 
 .edit-content-mobile .section-content-wrapper {
   padding: 16px;
   max-height: none;
+  overflow: visible;
 }
 
 /* Content dividers between sub-sections */
@@ -2927,47 +2921,8 @@
   background: var(--hover-bg);
 }
 
-/* Step title bar */
-.step-title-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 16px;
-  background: var(--card-bg);
-  border-bottom: 1px solid var(--border-color);
-  flex-shrink: 0;
-}
 
-.step-title {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--text-color);
-  margin: 0;
-}
-
-.step-title svg {
-  color: var(--primary-color);
-}
-
-.step-count {
-  font-size: 12px;
-  color: var(--text-muted);
-  font-weight: 500;
-  background: var(--hover-bg);
-  padding: 4px 10px;
-  border-radius: 20px;
-  white-space: nowrap;
-}
-
-/* No extra bottom padding needed — nav is inline now */
-.edit-content-mobile {
-  padding-bottom: 0;
-}
-
-/* Section content slide animation */
+/* Step slide animation */
 .edit-content-mobile .section-content-wrapper {
   animation: stepSlideIn 0.25s ease;
 }
