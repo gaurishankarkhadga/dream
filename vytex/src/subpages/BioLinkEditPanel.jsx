@@ -26,8 +26,8 @@ const BioLinkEditPanel = ({ user: userProp = null, biolink: biolinkProp = null, 
   // Touch Swipe Handlers for mobile navigation
   const touchStart = useRef({ x: null, y: null });
   const touchEnd = useRef({ x: null, y: null });
-  const minSwipeDistance = 40; // Reduced for better responsiveness
-  const maxVerticalDistance = 30; // Prevent swipe when scrolling vertically
+  const minSwipeDistance = 30; // Further reduced for easier triggering
+  const maxVerticalDistance = 50; // More lenient vertical movement
 
   const onTouchStart = (e) => {
     touchEnd.current = { x: null, y: null };
@@ -45,19 +45,21 @@ const BioLinkEditPanel = ({ user: userProp = null, biolink: biolinkProp = null, 
   };
 
   const onTouchEnd = () => {
-    if (!touchStart.current.x || !touchEnd.current.x) return;
+    if (touchStart.current.x === null || touchEnd.current.x === null) return;
 
     const distanceX = touchStart.current.x - touchEnd.current.x;
     const distanceY = Math.abs(touchStart.current.y - touchEnd.current.y);
 
-    // If vertical movement is significant, ignore horizontal swipe (probably scrolling)
+    // If vertical movement is significant, ignore horizontal swipe
     if (distanceY > maxVerticalDistance) return;
 
     if (Math.abs(distanceX) > minSwipeDistance) {
       if (distanceX > 0) {
-        goNext();
-      } else {
+        // Swipe Left -> Back
         goBack();
+      } else {
+        // Swipe Right -> Next
+        goNext();
       }
     }
   };
@@ -2000,7 +2002,12 @@ const BioLinkEditPanel = ({ user: userProp = null, biolink: biolinkProp = null, 
   }
 
   return (
-    <div className="biolink-edit-panel mobile-first">
+    <div 
+      className="biolink-edit-panel mobile-first"
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
+    >
       {/* Top bar - clean: save status + preview + save + publish */}
       <div className="edit-toolbar-mobile">
         <div className="auto-save-status">
@@ -2022,12 +2029,7 @@ const BioLinkEditPanel = ({ user: userProp = null, biolink: biolinkProp = null, 
       </div>
 
       {/* Main scrollable content area */}
-      <div 
-        className="edit-content-mobile"
-        onTouchStart={onTouchStart}
-        onTouchMove={onTouchMove}
-        onTouchEnd={onTouchEnd}
-      >
+      <div className="edit-content-mobile">
         <div className="section-content-wrapper">
           {renderSectionContent()}
         </div>
