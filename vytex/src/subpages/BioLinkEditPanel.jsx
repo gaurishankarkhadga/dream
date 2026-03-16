@@ -1481,7 +1481,6 @@ const BioLinkEditPanel = ({ user: userProp = null, biolink: biolinkProp = null, 
 
   const renderShopSection = () => (
     <div className="section-content">
-      <h3>Shop Products</h3>
       <div className="links-container">
         <div className="section-header">
           <h3>Shop Products</h3>
