@@ -1361,10 +1361,12 @@ const BioLinkEditPanel = ({ user: userProp = null, biolink: biolinkProp = null, 
     <div className="section-content">
       <div className="section-header">
         <h3>Social Links</h3>
-        <button className="add-btn" onClick={addLink}>
-          <Plus size={16} />
-          Add Link
-        </button>
+        {(biolinkData.links && biolinkData.links.length > 0) && (
+          <button className="add-btn" onClick={addLink}>
+            <Plus size={16} />
+            Add Link
+          </button>
+        )}
       </div>
 
       <div className="links-list">
@@ -1481,11 +1483,14 @@ const BioLinkEditPanel = ({ user: userProp = null, biolink: biolinkProp = null, 
     <div className="section-content">
       <h3>Shop Products</h3>
       <div className="links-container">
-        <div className="add-link-section">
-          <button className="add-link-btn" onClick={addProduct}>
-            <Plus size={20} />
-            <span>Add Product</span>
-          </button>
+        <div className="section-header">
+          <h3>Shop Products</h3>
+          {(biolinkData.products && biolinkData.products.length > 0) && (
+            <button className="add-btn" onClick={addProduct}>
+              <Plus size={16} />
+              Add Product
+            </button>
+          )}
         </div>
 
         {(biolinkData.products || []).map((product, index) => (
@@ -1566,62 +1571,68 @@ const BioLinkEditPanel = ({ user: userProp = null, biolink: biolinkProp = null, 
   const renderThemesSection = () => (
     <div className="section-content">
       <h3>Choose Theme</h3>
-      <div className="form-group">
-        <label>Background Image URL</label>
-        <input
-          type="text"
-          value={biolinkData.settings.backgroundImage || ''}
-          onChange={(e) => {
-            const value = e.target.value;
-            setBiolinkData(prev => ({ ...prev, settings: { ...prev.settings, backgroundImage: value } }));
-            setAutoSaveStatus('saving');
-            setTimeout(autoSave, 2000);
-          }}
-          placeholder="https://example.com/image.jpg"
-        />
-      </div>
+      <details style={{ marginBottom: '1.5rem', background: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '0.5rem 1rem' }}>
+        <summary style={{ cursor: 'pointer', fontWeight: 600, padding: '0.5rem 0' }}>Custom Theme Settings</summary>
+        <div style={{ marginTop: '1rem' }}>
+          <div className="form-group">
+            <label>Background Image URL</label>
+            <input
+              type="text"
+              value={biolinkData.settings.backgroundImage || ''}
+              onChange={(e) => {
+                const value = e.target.value;
+                setBiolinkData(prev => ({ ...prev, settings: { ...prev.settings, backgroundImage: value } }));
+                setAutoSaveStatus('saving');
+                setTimeout(autoSave, 2000);
+              }}
+              placeholder="https://example.com/image.jpg"
+              className="simple-input"
+            />
+          </div>
 
-      <div className="form-group" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
-        <div>
-          <label>Accent Color</label>
-          <input
-            type="color"
-            value={biolinkData.settings.accentColor}
-            onChange={(e) => {
-              const value = e.target.value;
-              setBiolinkData(prev => ({ ...prev, settings: { ...prev.settings, accentColor: value } }));
-              setAutoSaveStatus('saving');
-              setTimeout(autoSave, 2000);
-            }}
-          />
+          <div className="form-group" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+            <div>
+              <label>Accent Color</label>
+              <input
+                type="color"
+                value={biolinkData.settings.accentColor}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setBiolinkData(prev => ({ ...prev, settings: { ...prev.settings, accentColor: value } }));
+                  setAutoSaveStatus('saving');
+                  setTimeout(autoSave, 2000);
+                }}
+              />
+            </div>
+            <div>
+              <label>Text Color</label>
+              <input
+                type="color"
+                value={biolinkData.settings.textColor}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setBiolinkData(prev => ({ ...prev, settings: { ...prev.settings, textColor: value } }));
+                  setAutoSaveStatus('saving');
+                  setTimeout(autoSave, 2000);
+                }}
+              />
+            </div>
+            <div>
+              <label>Background Color</label>
+              <input
+                type="color"
+                value={biolinkData.settings.backgroundColor}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setBiolinkData(prev => ({ ...prev, settings: { ...prev.settings, backgroundColor: value } }));
+                  setAutoSaveStatus('saving');
+                  setTimeout(autoSave, 2000);
+                }}
+              />
+            </div>
+          </div>
         </div>
-        <div>
-          <label>Text Color</label>
-          <input
-            type="color"
-            value={biolinkData.settings.textColor}
-            onChange={(e) => {
-              const value = e.target.value;
-              setBiolinkData(prev => ({ ...prev, settings: { ...prev.settings, textColor: value } }));
-              setAutoSaveStatus('saving');
-              setTimeout(autoSave, 2000);
-            }}
-          />
-        </div>
-        <div>
-          <label>Background Color</label>
-          <input
-            type="color"
-            value={biolinkData.settings.backgroundColor}
-            onChange={(e) => {
-              const value = e.target.value;
-              setBiolinkData(prev => ({ ...prev, settings: { ...prev.settings, backgroundColor: value } }));
-              setAutoSaveStatus('saving');
-              setTimeout(autoSave, 2000);
-            }}
-          />
-        </div>
-      </div>
+      </details>
       <div className="themes-grid">
         {themes.map((theme) => (
           <div

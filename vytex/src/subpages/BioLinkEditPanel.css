@@ -438,12 +438,17 @@
   overflow-y: auto;
   scroll-snap-align: start;
   padding-bottom: 80px; /* To account for bottom bar */
+  position: relative;
+  z-index: 1; /* Fix for unclickable content / input freeze */
 }
 
 /* Adjust section-content inside slides */
 .slider-slide .section-content {
-  height: 100%; /* Ensure full height so content can be scrolled internally */
+  min-height: 100%; /* Ensure it can expand, allowing scroll */
+  height: auto;
   padding-bottom: 1rem;
+  position: relative;
+  z-index: 2; /* Ensure inputs remain clickable above slide */
 }
 
 .section-content h3 {
@@ -532,6 +537,7 @@
   background: linear-gradient(135deg, transparent 0%, rgba(139, 92, 246, 0.05) 100%);
   opacity: 0;
   transition: opacity var(--transition-quick);
+  pointer-events: none; /* FIX: allow clicks through the overlay */
 }
 
 .content-action-btn:hover::before {
@@ -539,14 +545,13 @@
 }
 
 .content-action-btn:hover {
-  transform: translateY(-4px) scale(1.02);
-  box-shadow: var(--shadow-lg);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
   border-color: var(--primary-color);
 }
 
 .content-action-btn:active {
-  transform: translateY(-2px) scale(1.01);
-  box-shadow: var(--shadow-md);
+  transform: translateY(0);
 }
 
 .content-action-btn span {
@@ -573,8 +578,7 @@
 }
 
 .separator-btn:hover svg {
-  transform: scale(1.1);
-  filter: drop-shadow(0 0 8px rgba(34, 211, 238, 0.4));
+  filter: drop-shadow(0 0 4px rgba(34, 211, 238, 0.4));
 }
 
 .cta-btn {
@@ -593,8 +597,7 @@
 }
 
 .cta-btn:hover svg {
-  transform: scale(1.1);
-  filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.4));
+  filter: drop-shadow(0 0 4px rgba(59, 130, 246, 0.4));
 }
 
 .text-btn {
@@ -946,6 +949,7 @@
   height: 100%;
   background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
   transition: left 0.5s ease;
+  pointer-events: none; /* FIX: allow clicks through the overlay */
 }
 
 .creative-platform-btn:hover::before {
@@ -1081,6 +1085,8 @@
   color: var(--text-color);
   font-size: 0.875rem;
   transition: all 0.2s ease;
+  position: relative;
+  z-index: 5; /* FIX: prevent overlay masking making input unselectable */
 }
 
 .simple-input:focus {
@@ -1795,16 +1801,16 @@
   background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
   color: white;
   border: none;
-  border-radius: 12px;
-  padding: 1rem 2rem;
+  border-radius: 8px;
+  padding: 0.75rem 1.5rem;
   display: flex;
   align-items: center;
   gap: 0.75rem;
   cursor: pointer;
-  transition: all var(--transition-bounce);
-  font-size: 1rem;
+  transition: all var(--transition-quick);
+  font-size: 0.95rem;
   font-weight: 600;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-sm);
   position: relative;
   overflow: hidden;
 }
@@ -1819,6 +1825,7 @@
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 100%);
   opacity: 0;
   transition: opacity var(--transition-quick);
+  pointer-events: none; /* FIX: allow clicks through the overlay */
 }
 
 .first-link-btn:hover::before {
@@ -1826,13 +1833,13 @@
 }
 
 .first-link-btn:hover {
-  transform: translateY(-3px) scale(1.02);
-  box-shadow: var(--shadow-lg);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
 }
 
 .first-link-btn:active {
-  transform: translateY(-1px) scale(1.01);
-  box-shadow: var(--shadow-md);
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
 }
 
 .first-link-btn svg {
@@ -1840,7 +1847,7 @@
 }
 
 .first-link-btn:hover svg {
-  transform: rotate(90deg) scale(1.1);
+  transform: rotate(90deg);
 }
 
 .first-link-btn span {
@@ -1932,22 +1939,22 @@
   background: var(--primary-color);
   color: white;
   border: none;
-  border-radius: 12px;
-  padding: 0.875rem 1.5rem;
+  border-radius: 8px;
+  padding: 0.6rem 1.2rem;
   display: flex;
   align-items: center;
   gap: 0.5rem;
   cursor: pointer;
-  transition: all var(--transition-bounce);
-  font-size: 0.9rem;
+  transition: all var(--transition-quick);
+  font-size: 0.85rem;
   font-weight: 600;
   box-shadow: var(--shadow-sm);
 }
 
 .add-ticket-btn:hover {
   background: var(--primary-hover);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
 }
 
 .tickets-list {
