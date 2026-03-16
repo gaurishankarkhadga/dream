@@ -362,8 +362,8 @@ const BioLinkEditPanel = ({ user: userProp = null, biolink: biolinkProp = null, 
     // Only seed starter content when creating new biolinks
     setBiolinkData(prev => ({
       ...prev,
-      links: isNew || (!hasExistingContent ? starterLinks : prev.links),
-      elements: isNew || (!hasExistingContent ? [] : prev.elements)
+      links: (isNew || !hasExistingContent) ? starterLinks : prev.links,
+      elements: (isNew || !hasExistingContent) ? [] : prev.elements
     }));
 
     localStorage.removeItem('selectedTemplate');
