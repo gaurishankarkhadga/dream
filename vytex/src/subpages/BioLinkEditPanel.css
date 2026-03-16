@@ -405,31 +405,17 @@
 }
 
 
-/* Custom Scrollbar ONLY for Edit Panel Tabs Content */
-.biolink-edit-panel .edit-panel-side .section-content-wrapper {
-  scrollbar-width: thin;
-  scrollbar-color: var(--primary-color) var(--card-bg);
+/* Global Scrollbar Hide while maintaining scroll functionality */
+.biolink-edit-panel *,
+.biolink-edit-panel *::-webkit-scrollbar {
+  scrollbar-width: none !important; /* Firefox */
+  -ms-overflow-style: none !important; /* IE and Edge */
 }
 
-.biolink-edit-panel .edit-panel-side .section-content-wrapper::-webkit-scrollbar {
-  display: block;
-  width: 8px;
-}
-
-.biolink-edit-panel .edit-panel-side .section-content-wrapper::-webkit-scrollbar-track {
-  background: var(--card-bg);
-  border-radius: 4px;
-}
-
-.biolink-edit-panel .edit-panel-side .section-content-wrapper::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
-  border-radius: 4px;
-  transition: all var(--transition-quick);
-}
-
-.biolink-edit-panel .edit-panel-side .section-content-wrapper::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, var(--primary-hover), var(--secondary-color));
-  transform: scale(1.1);
+.biolink-edit-panel *::-webkit-scrollbar {
+  display: none !important; /* Chrome, Safari and Opera */
+  width: 0 !important;
+  height: 0 !important;
 }
 
 /* Horizontal Slider Container */
@@ -1854,11 +1840,14 @@
 .first-link-btn span {
   display: inline-flex;
   align-items: center;
+  position: relative;
+  z-index: 1;
 }
 
 .first-link-btn svg {
   display: block;
-  /* Remove baseline spacing */
+  flex-shrink: 0; /* Prevent icon from squeezing */
+  transition: transform var(--transition-quick);
 }
 
 .first-link-btn::before {
@@ -1889,18 +1878,13 @@
   box-shadow: var(--shadow-sm);
 }
 
-.first-link-btn svg {
-  transition: transform var(--transition-quick);
-}
+/* Transition moved to consolidated block above */
 
 .first-link-btn:hover svg {
   transform: rotate(90deg);
 }
 
-.first-link-btn span {
-  position: relative;
-  z-index: 1;
-}
+/* Merged into consolidated block above */
 
 /* Responsive adjustments for first link button */
 @media (max-width: 768px) {
@@ -2441,11 +2425,12 @@
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 2rem 1rem;
+  padding: 3rem 2rem;
   /* Clean flat design, no border or background dust */
   border-radius: 20px;
-  margin: 1.5rem 0;
+  margin: 2rem 0;
   background: transparent;
+  border: none;
 }
 
 .empty-state svg {
