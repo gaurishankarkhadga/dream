@@ -1361,12 +1361,10 @@ const BioLinkEditPanel = ({ user: userProp = null, biolink: biolinkProp = null, 
     <div className="section-content">
       <div className="section-header">
         <h3>Social Links</h3>
-        {(biolinkData.links && biolinkData.links.length > 0) && (
-          <button className="add-btn" onClick={addLink}>
-            <Plus size={16} />
-            Add Link
-          </button>
-        )}
+        <button className="add-btn first-link-btn" onClick={addLink}>
+          <Plus size={18} />
+          Add New Link
+        </button>
       </div>
 
       <div className="links-list">
@@ -1467,14 +1465,7 @@ const BioLinkEditPanel = ({ user: userProp = null, biolink: biolinkProp = null, 
           </div>
         ))}
 
-        {biolinkData.links.length === 0 && (
-          <div className="empty-state">
-            <button className="first-link-btn" onClick={addLink}>
-              <Plus size={20} />
-              <span>Add Your First Link</span>
-            </button>
-          </div>
-        )}
+        {/* Redundant 'First Link' button removed as the header button is now always visible and sticky */}
       </div>
     </div>
   );
@@ -1484,12 +1475,10 @@ const BioLinkEditPanel = ({ user: userProp = null, biolink: biolinkProp = null, 
       <div className="links-container">
         <div className="section-header">
           <h3>Shop Products</h3>
-          {(biolinkData.products && biolinkData.products.length > 0) && (
-            <button className="add-btn" onClick={addProduct}>
-              <Plus size={16} />
-              Add Product
-            </button>
-          )}
+          <button className="add-btn first-link-btn" onClick={addProduct}>
+            <Plus size={18} />
+            Add New Product
+          </button>
         </div>
 
         {(biolinkData.products || []).map((product, index) => (
@@ -1555,14 +1544,7 @@ const BioLinkEditPanel = ({ user: userProp = null, biolink: biolinkProp = null, 
           </div>
         ))}
 
-        {biolinkData.products.length === 0 && (
-          <div className="empty-state">
-            <button className="first-link-btn" onClick={addProduct}>
-              <Plus size={20} />
-              <span>Add Your First Product</span>
-            </button>
-          </div>
-        )}
+        {/* Redundant 'First Product' button removed as the header button is now always visible and sticky */}
       </div>
     </div>
   );

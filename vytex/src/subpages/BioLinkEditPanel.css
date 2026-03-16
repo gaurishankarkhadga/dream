@@ -471,18 +471,31 @@
   /* Ensure inputs remain clickable above slide */
 }
 
-.section-content h3 {
-  color: var(--section-title);
-  margin-bottom: 0.5rem;
-  font-size: 1.125rem;
-  font-weight: 600;
+/* Global Sticky Section Headers (Titles + Buttons) */
+.section-header, 
+.section-content > h3 {
+  position: sticky !important;
+  top: -1px; /* Ensure no gap at the top */
+  z-index: 1001; 
+  background: var(--bg-color);
+  padding: 1.25rem 0.5rem;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  gap: 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
+.section-header h3,
+.section-content > h3 {
+  margin: 0 !important;
+  font-size: 1.25rem;
+  color: var(--primary-color);
+  font-weight: 700;
 }
 
 .add-btn {
@@ -490,13 +503,14 @@
   color: white;
   border: none;
   border-radius: 6px;
-  padding: 0.25rem 0.6rem;
+  padding: 0.4rem 1.25rem; /* Slightly larger for easier clicking */
   display: flex;
   align-items: center;
-  gap: 0.3rem;
+  gap: 0.4rem;
   cursor: pointer;
   transition: var(--transition-quick);
-  font-size: 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 600;
 }
 
 .add-btn:hover {
