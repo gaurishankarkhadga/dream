@@ -18,6 +18,7 @@ app.use(helmet({
   crossOriginEmbedderPolicy: false
 }));
 
+
 // Basic middleware with proper CORS
 app.use(cors({
   // origin: ['http://localhost:5173','https://vytexsite.netlify.app'],

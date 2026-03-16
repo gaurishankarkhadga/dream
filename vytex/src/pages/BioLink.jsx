@@ -111,7 +111,6 @@ const BioLink = () => {
       <div className="biolink-home">
         {/* Templates */}
         <div className="templates-section">
-          <h3>Choose a Template</h3>
           <div className="templates-grid">
             {/* Create New Card */}
             <div className="template-card-create" onClick={handleCreateNew}>
