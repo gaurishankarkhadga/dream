@@ -378,10 +378,12 @@
 /* Section Content - no scroll here, parent handles it */
 .section-content-wrapper {
   flex: 1;
-  padding: 2rem;
-  overflow-y: auto;
+  padding: 0; /* Removing padding here, letting slides handle it */
+  overflow: hidden; /* Hide overflow to force use of the slider-container */
   max-height: 100%;
+  height: 100%;
 }
+
 
 /* Custom Scrollbar ONLY for Edit Panel Tabs Content */
 .biolink-edit-panel .edit-panel-side .section-content-wrapper {
@@ -408,6 +410,40 @@
 .biolink-edit-panel .edit-panel-side .section-content-wrapper::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(135deg, var(--primary-hover), var(--secondary-color));
   transform: scale(1.1);
+}
+
+/* Horizontal Slider Container */
+.slider-container {
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  width: 100%;
+  height: 100%;
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.slider-container::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
+}
+
+/* Individual Slides */
+.slider-slide {
+  flex: 0 0 100%;
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  scroll-snap-align: start;
+  padding-bottom: 80px; /* To account for bottom bar */
+}
+
+/* Adjust section-content inside slides */
+.slider-slide .section-content {
+  height: 100%; /* Ensure full height so content can be scrolled internally */
+  padding-bottom: 2rem;
 }
 
 .section-content h3 {

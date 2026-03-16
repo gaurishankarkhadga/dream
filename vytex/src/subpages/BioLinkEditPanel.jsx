@@ -20,50 +20,43 @@ const BioLinkEditPanel = ({ user: userProp = null, biolink: biolinkProp = null, 
   const stepIds = ['profile', 'links', 'shop', 'themes', 'others'];
   const activeSection = stepIds[currentStep] || 'profile';
 
-  const goNext = () => setCurrentStep(prev => Math.min(prev + 1, stepIds.length - 1));
-  const goBack = () => setCurrentStep(prev => Math.max(prev - 1, 0));
-
-  // Touch Swipe Handlers for mobile navigation
-  const touchStart = useRef({ x: null, y: null });
-  const touchEnd = useRef({ x: null, y: null });
-  const minSwipeDistance = 30; // Further reduced for easier triggering
-  const maxVerticalDistance = 50; // More lenient vertical movement
-
-  const onTouchStart = (e) => {
-    touchEnd.current = { x: null, y: null };
-    touchStart.current = {
-      x: e.targetTouches[0].clientX,
-      y: e.targetTouches[0].clientY
-    };
+  const goNext = () => {
+    const nextStep = Math.min(currentStep + 1, stepIds.length - 1);
+    setCurrentStep(nextStep);
+    scrollToStep(nextStep);
+  };
+  
+  const goBack = () => {
+    const prevStep = Math.max(currentStep - 1, 0);
+    setCurrentStep(prevStep);
+    scrollToStep(prevStep);
   };
 
-  const onTouchMove = (e) => {
-    touchEnd.current = {
-      x: e.targetTouches[0].clientX,
-      y: e.targetTouches[0].clientY
-    };
-  };
+  const sliderRef = useRef(null);
 
-  const onTouchEnd = () => {
-    if (touchStart.current.x === null || touchEnd.current.x === null) return;
-
-    const distanceX = touchStart.current.x - touchEnd.current.x;
-    const distanceY = Math.abs(touchStart.current.y - touchEnd.current.y);
-
-    // If vertical movement is significant, ignore horizontal swipe
-    if (distanceY > maxVerticalDistance) return;
-
-    if (Math.abs(distanceX) > minSwipeDistance) {
-      if (distanceX > 0) {
-        // Swipe Left -> Back
-        goBack();
-      } else {
-        // Swipe Right -> Next
-        goNext();
-      }
+  const scrollToStep = (index) => {
+    if (sliderRef.current) {
+      const containerWidth = sliderRef.current.clientWidth;
+      sliderRef.current.scrollTo({
+        left: index * containerWidth,
+        behavior: 'smooth'
+      });
     }
   };
 
+  const handleScroll = () => {
+    if (!sliderRef.current) return;
+    const scrollLeft = sliderRef.current.scrollLeft;
+    const containerWidth = sliderRef.current.clientWidth;
+    // Calculate which step represents the majority of the view
+    const newStep = Math.round(scrollLeft / containerWidth);
+    if (newStep !== currentStep && newStep >= 0 && newStep < stepIds.length) {
+      setCurrentStep(newStep);
+    }
+  };
+
+
+  // Touch Swipe Handlers for mobile navigation removed in favor of native scroll-snap using sliderRef
 
 
   const normalizeBiolink = (raw) => {
@@ -1031,14 +1024,29 @@ const BioLinkEditPanel = ({ user: userProp = null, biolink: biolinkProp = null, 
 
 
   const renderSectionContent = () => {
-    switch (activeSection) {
-      case 'profile': return renderProfileSection();
-      case 'links': return renderLinksSection();
-      case 'shop': return renderShopSection();
-      case 'themes': return renderThemesSection();
-      case 'others': return renderOthersSection();
-      default: return renderProfileSection();
-    }
+    return (
+      <div 
+        className="slider-container" 
+        ref={sliderRef}
+        onScroll={handleScroll}
+      >
+        <div className="slider-slide">
+          {renderProfileSection()}
+        </div>
+        <div className="slider-slide">
+          {renderLinksSection()}
+        </div>
+        <div className="slider-slide">
+          {renderShopSection()}
+        </div>
+        <div className="slider-slide">
+          {renderThemesSection()}
+        </div>
+        <div className="slider-slide">
+          {renderOthersSection()}
+        </div>
+      </div>
+    );
   };
 
   // Others step: Media + Content Elements
@@ -2002,12 +2010,7 @@ const BioLinkEditPanel = ({ user: userProp = null, biolink: biolinkProp = null, 
   }
 
   return (
-    <div 
-      className="biolink-edit-panel mobile-first"
-      onTouchStart={onTouchStart}
-      onTouchMove={onTouchMove}
-      onTouchEnd={onTouchEnd}
-    >
+    <div className="biolink-edit-panel mobile-first">
       {/* Top bar - clean: save status + preview + save + publish */}
       <div className="edit-toolbar-mobile">
         <div className="auto-save-status">
